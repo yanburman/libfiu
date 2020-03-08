@@ -204,6 +204,7 @@ static int rc_do_command(int fdr, int fdw)
 	if (len <= 0)
 		return len;
 
+        fprintf(stderr, "%d executing: %s\n", getpid(), buf);
 	r = fiu_rc_string(buf, &error);
 	if (r < 0)
 		fprintf(stderr, "fiu_rc_string error: %s\n", error);

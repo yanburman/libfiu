@@ -329,6 +329,7 @@ bool wtable_del(struct wtable *t, const char *key)
 		entry = wildcards_find_entry(t, key, true, NULL);
 
 		if (!entry) {
+                        fprintf(stderr, "wtable: %s not found\n", key);
 			/* Key not found. */
 			return false;
 		}
@@ -346,8 +347,10 @@ bool wtable_del(struct wtable *t, const char *key)
 		/* Shrink if the table is less than 60% occupied. */
 		if (t->ws_size > MIN_SIZE &&
 				(float) t->ws_used_count / t->ws_size < 0.6) {
-			if (!resize_table(t, t->ws_used_count + 3))
+			if (!resize_table(t, t->ws_used_count + 3)) {
+                                fprintf(stderr, "wtable: %s cannot resize\n", key);
 				return false;
+                        }
 		}
 
 		/* Invalidate the cache. We could be smart and walk it,

@@ -15,6 +15,7 @@
 #include <string.h>		/* for memcpy()/memcmp() */
 #include <stdio.h>		/* snprintf() */
 #include <pthread.h>		/* read-write locks */
+#include <unistd.h>             /* getpid */
 #include "hash.h"
 
 /* MurmurHash2, by Austin Appleby. The one we use.
@@ -292,6 +293,7 @@ bool hash_del(struct hash *h, const char *key)
 	for (int i = 0; i < h->table_size; i++) {
 		entry = h->entries + pos;
 		if (entry->in_use == NEVER) {
+                        fprintf(stderr, "%d hash: %s not found 1\n", getpid(), key);
 			/* We got to a never used key, not found. */
 			return false;
 		} else if (entry->in_use == IN_USE &&
@@ -306,6 +308,7 @@ bool hash_del(struct hash *h, const char *key)
 	}
 
 	if (!found) {
+                fprintf(stderr, "%d hash: %s not found 2\n", getpid(), key);
 		return false;
 	}
 
@@ -318,8 +321,10 @@ bool hash_del(struct hash *h, const char *key)
 	h->nentries--;
 	h->nremoved++;
 
-	if (!auto_resize_table(h))
+	if (!auto_resize_table(h)) {
+                fprintf(stderr, "%d hash: %s cannot resize\n", getpid(), key);
 		return false;
+        }
 
 	return true;
 }
